@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.id }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Ticket <span class="ticket-id">#{{ ticket.id }}</span></h1>
+        <p class="page-subtitle">{{ ticket.title }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('tickets') }}" class="btn btn-ghost" id="back-to-list-btn">
+            <i data-lucide="arrow-left"></i>
+            <span>Back</span>
+        </a>
+        <a href="{{ url_for('edit_ticket', ticket_id=ticket.id) }}" class="btn btn-primary" id="edit-ticket-btn">
+            <i data-lucide="pencil"></i>
+            <span>Edit</span>
+        </a>
+        <form method="POST" action="{{ url_for('delete_ticket', ticket_id=ticket.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete ticket #{{ ticket.id }}? This action cannot be undone.');">
+            <button type="submit" class="btn btn-danger" id="delete-ticket-btn">
+                <i data-lucide="trash-2"></i>
+                <span>Delete</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="detail-layout">
+    <!-- ─── Main Content ───────────────────────────────────────────────── -->
+    <div class="detail-main">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i data-lucide="file-text"></i>
+                    Description
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="ticket-description">
+                    {{ ticket.description }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Sidebar ────────────────────────────────────────────────────── -->
+    <div class="detail-sidebar">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i data-lucide="info"></i>
+                    Details
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="detail-list">
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="badge badge-status-{{ ticket.status | lower | replace(' ', '-') }}">{{ ticket.status }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Priority</span>
+                        <span class="badge badge-priority-{{ ticket.priority | lower }}">{{ ticket.priority }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Assigned To</span>
+                        <span class="detail-value">
+                            {% if ticket.assigned_to %}
+                                <span class="assignee">
+                                    <span class="assignee-avatar">{{ ticket.assigned_to[0] }}</span>
+                                    {{ ticket.assigned_to }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Unassigned</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Created By</span>
+                        <span class="detail-value">
+                            <span class="assignee">
+                                <span class="assignee-avatar">{{ ticket.created_by[0] }}</span>
+                                {{ ticket.created_by }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Created</span>
+                        <span class="detail-value text-muted">{{ ticket.created_at | humandate }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Updated</span>
+                        <span class="detail-value text-muted">{{ ticket.updated_at | humandate }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

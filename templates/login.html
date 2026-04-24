@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content_noauth %}
+<div class="login-page">
+    <div class="login-card">
+        <!-- Left decorative panel -->
+        <div class="login-brand">
+            <div class="login-brand-content">
+                <div class="logo-icon large">
+                    <i data-lucide="scan-line"></i>
+                </div>
+                <h1>Track<span class="accent">IT</span></h1>
+                <p>Ticket Management System</p>
+                <div class="login-features">
+                    <div class="login-feature">
+                        <i data-lucide="shield-check"></i>
+                        <span>Secure Issue Tracking</span>
+                    </div>
+                    <div class="login-feature">
+                        <i data-lucide="users"></i>
+                        <span>Team Collaboration</span>
+                    </div>
+                    <div class="login-feature">
+                        <i data-lucide="bar-chart-3"></i>
+                        <span>Real-time Analytics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right form panel -->
+        <div class="login-form-panel">
+            <div class="login-form-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your account to continue</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('login') }}" class="login-form" id="loginForm" novalidate>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+                    <i data-lucide="log-in"></i>
+                    <span>Sign In</span>
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-secondary);">
+                Don't have an account? <a href="{{ url_for('signup') }}" style="font-weight: 600;">Sign Up</a>
+            </div>
+
+            <div class="login-hint">
+                <p><strong>Demo Credentials</strong></p>
+                <code><strong>User:</strong> admin &nbsp;|&nbsp; <strong>Pass:</strong> admin</code>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TrackIT - Professional Ticket Management System for tracking issues, managing tasks, and resolving problems efficiently.">
+    <title>{% block title %}TrackIT{% endblock %} — TrackIT</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% if current_user %}
+    <!-- ─── Sidebar ─────────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="scan-line"></i>
+                </div>
+                <span class="logo-text">Track<span class="accent">IT</span></span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i data-lucide="panel-left-close"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <span class="nav-section-title">Main</span>
+                <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" id="nav-dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('tickets') }}" class="nav-link {% if request.endpoint in ['tickets', 'ticket_detail'] %}active{% endif %}" id="nav-tickets">
+                    <i data-lucide="ticket"></i>
+                    <span>All Tickets</span>
+                </a>
+                <a href="{{ url_for('create_ticket') }}" class="nav-link {% if request.endpoint == 'create_ticket' %}active{% endif %}" id="nav-create">
+                    <i data-lucide="plus-circle"></i>
+                    <span>Create Ticket</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-title">Quick Filters</span>
+                <a href="{{ url_for('tickets', status='Open') }}" class="nav-link" id="nav-filter-open">
+                    <i data-lucide="circle-dot"></i>
+                    <span>Open</span>
+                </a>
+                <a href="{{ url_for('tickets', status='In Progress') }}" class="nav-link" id="nav-filter-progress">
+                    <i data-lucide="loader"></i>
+                    <span>In Progress</span>
+                </a>
+                <a href="{{ url_for('tickets', priority='High') }}" class="nav-link" id="nav-filter-high">
+                    <i data-lucide="alert-triangle"></i>
+                    <span>High Priority</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">{{ current_user.full_name[0] }}</div>
+                <div class="user-info">
+                    <span class="user-name">{{ current_user.full_name }}</span>
+                    <span class="user-role">{{ current_user.role | capitalize }}</span>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="nav-link logout-link" id="nav-logout">
+                <i data-lucide="log-out"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ─── Mobile Top Bar ──────────────────────────────────────────────── -->
+    <header class="mobile-header" id="mobileHeader">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+            <i data-lucide="menu"></i>
+        </button>
+        <div class="logo">
+            <div class="logo-icon small">
+                <i data-lucide="scan-line"></i>
+            </div>
+            <span class="logo-text">Track<span class="accent">IT</span></span>
+        </div>
+        <a href="{{ url_for('logout') }}" class="mobile-logout" title="Logout">
+            <i data-lucide="log-out"></i>
+        </a>
+    </header>
+
+    <!-- ─── Overlay for mobile sidebar ──────────────────────────────────── -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ─── Main Content ────────────────────────────────────────────────── -->
+    <main class="main-content" id="mainContent">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}" role="alert">
+                            {% if category == 'success' %}
+                                <i data-lucide="check-circle-2"></i>
+                            {% elif category == 'error' %}
+                                <i data-lucide="x-circle"></i>
+                            {% elif category == 'warning' %}
+                                <i data-lucide="alert-triangle"></i>
+                            {% else %}
+                                <i data-lucide="info"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                            <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Close">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+    {% else %}
+        <!-- Unauthenticated pages (login) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container flash-container--login">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}" role="alert">
+                            {% if category == 'success' %}
+                                <i data-lucide="check-circle-2"></i>
+                            {% elif category == 'error' %}
+                                <i data-lucide="x-circle"></i>
+                            {% elif category == 'warning' %}
+                                <i data-lucide="alert-triangle"></i>
+                            {% else %}
+                                <i data-lucide="info"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                            <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Close">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content_noauth %}{% endblock %}
+    {% endif %}
+
+    <!-- App Script -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

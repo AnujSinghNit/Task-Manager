@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}All Tickets{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">All Tickets</h1>
+        <p class="page-subtitle">{{ total }} ticket{{ 's' if total != 1 else '' }} found</p>
+    </div>
+    <a href="{{ url_for('create_ticket') }}" class="btn btn-primary" id="tickets-create-btn">
+        <i data-lucide="plus"></i>
+        <span>New Ticket</span>
+    </a>
+</div>
+
+<!-- ─── Filters ──────────────────────────────────────────────────────── -->
+<div class="card filter-card">
+    <form method="GET" action="{{ url_for('tickets') }}" class="filter-form" id="filterForm">
+        <div class="filter-group">
+            <div class="input-wrapper input-wrapper--filter">
+                <i data-lucide="search"></i>
+                <input type="text" name="search" id="searchInput" placeholder="Search by title or keyword…" value="{{ search }}">
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <select name="status" id="filterStatus" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="Open" {{ 'selected' if status == 'Open' }}>Open</option>
+                <option value="In Progress" {{ 'selected' if status == 'In Progress' }}>In Progress</option>
+                <option value="Resolved" {{ 'selected' if status == 'Resolved' }}>Resolved</option>
+                <option value="Closed" {{ 'selected' if status == 'Closed' }}>Closed</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <select name="priority" id="filterPriority" class="form-select">
+                <option value="">All Priorities</option>
+                <option value="Low" {{ 'selected' if priority == 'Low' }}>Low</option>
+                <option value="Medium" {{ 'selected' if priority == 'Medium' }}>Medium</option>
+                <option value="High" {{ 'selected' if priority == 'High' }}>High</option>
+            </select>
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary btn-sm" id="filterApplyBtn">
+                <i data-lucide="filter"></i>
+                Apply
+            </button>
+            <a href="{{ url_for('tickets') }}" class="btn btn-ghost btn-sm" id="filterClearBtn">
+                <i data-lucide="x"></i>
+                Clear
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- ─── Tickets Table ────────────────────────────────────────────────── -->
+<div class="card">
+    <div class="card-body table-responsive">
+        {% if tickets %}
+        <table class="table" id="ticketsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Created By</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td><span class="ticket-id">#{{ ticket.id }}</span></td>
+                    <td>
+                        <a href="{{ url_for('ticket_detail', ticket_id=ticket.id) }}" class="ticket-title-link">
+                            {{ ticket.title | truncate(55) }}
+                        </a>
+                    </td>
+                    <td><span class="badge badge-priority-{{ ticket.priority | lower }}">{{ ticket.priority }}</span></td>
+                    <td><span class="badge badge-status-{{ ticket.status | lower | replace(' ', '-') }}">{{ ticket.status }}</span></td>
+                    <td>{{ ticket.assigned_to or '—' }}</td>
+                    <td>{{ ticket.created_by }}</td>
+                    <td><span class="text-muted">{{ ticket.created_at | shortdate }}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{{ url_for('ticket_detail', ticket_id=ticket.id) }}" class="btn btn-ghost btn-icon" title="View">
+                                <i data-lucide="eye"></i>
+                            </a>
+                            <a href="{{ url_for('edit_ticket', ticket_id=ticket.id) }}" class="btn btn-ghost btn-icon" title="Edit">
+                                <i data-lucide="pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('delete_ticket', ticket_id=ticket.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
+                                <button type="submit" class="btn btn-ghost btn-icon btn-danger" title="Delete">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <div class="pagination" id="pagination">
+            {% if page > 1 %}
+                <a href="{{ url_for('tickets', page=page-1, search=search, status=status, priority=priority) }}" class="pagination-btn" id="prevPage">
+                    <i data-lucide="chevron-left"></i>
+                    Prev
+                </a>
+            {% endif %}
+
+            {% for p in range(1, total_pages + 1) %}
+                {% if p == page %}
+                    <span class="pagination-btn active">{{ p }}</span>
+                {% elif p == 1 or p == total_pages or (p >= page - 1 and p <= page + 1) %}
+                    <a href="{{ url_for('tickets', page=p, search=search, status=status, priority=priority) }}" class="pagination-btn">{{ p }}</a>
+                {% elif p == page - 2 or p == page + 2 %}
+                    <span class="pagination-dots">…</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if page < total_pages %}
+                <a href="{{ url_for('tickets', page=page+1, search=search, status=status, priority=priority) }}" class="pagination-btn" id="nextPage">
+                    Next
+                    <i data-lucide="chevron-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <i data-lucide="search-x"></i>
+            <p>No tickets match your filters.</p>
+            <a href="{{ url_for('tickets') }}" class="btn btn-primary btn-sm">Clear Filters</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
